@@ -1,0 +1,6 @@
+framework module Pods_AlphaNews {
+  umbrella header "Pods-AlphaNews-umbrella.h"
+
+  export *
+  module * { export * }
+}
