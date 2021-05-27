@@ -9,7 +9,6 @@ import UIKit
 import JGProgressHUD
 
 
-
 class NewsViewController: UIViewController {
     
     private var newsModel: NewsModelProtocol = NewsModel()
@@ -63,7 +62,6 @@ class NewsViewController: UIViewController {
     
     func setupTableView() {
         tableView.isHidden = true
-//        tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         tableView.separatorInset = .zero
         tableView.register(cellClass: NewsTableViewCell.self)
         tableView.backgroundColor = #colorLiteral(red: 0.1811541617, green: 0.5091361403, blue: 0.6723850965, alpha: 1)
@@ -161,7 +159,6 @@ extension NewsViewController: ModelDelegate {
         case .refresh:
             DispatchQueue.main.async {
                 self.tableView.reloadData()
-//                self.tableView.reloadData()
                 self.tableView.isHidden = false
                 self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
                 self.spinner.dismiss()
@@ -173,17 +170,7 @@ extension NewsViewController: ModelDelegate {
                 self.tableView.isHidden = false
                 self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
                 self.spinner.dismiss()
-//                self.tableView.separatorStyle = .singleLine
             }
-//        case .loadMoreWithSearchBar:
-//            DispatchQueue.main.async {
-//                self.tableView.reloadData()
-//                self.tableView.isHidden = false
-//                self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
-//                self.searchBar.resignFirstResponder()
-//                self.spinner.dismiss()
-//                self.newsModel.event = .loadMore
-//            }
         case .cellUpdated(let index):
             tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
         }

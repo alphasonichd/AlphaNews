@@ -90,7 +90,9 @@ final class NewsModel: NewsModelProtocol {
                     modifiedArticles.append(ModifiedArticle(title: article.title,
                                                             description: article.description,
                                                             urlToImage: article.urlToImage,
-                                                            showMore: false))
+                                                            showMore: false,
+                                                            id: modifiedArticles.count
+                    ))
                 }
                 self.modifiedArticles.append(contentsOf: modifiedArticles)
                 self.originalArticles.append(contentsOf: modifiedArticles)
@@ -111,8 +113,12 @@ final class NewsModel: NewsModelProtocol {
     func toggleShowMore(forArticleAt index: Int) {
         self.event = .cellUpdated(index)
         modifiedArticles[index].showMore = !modifiedArticles[index].showMore
-//        let targetTitle = modifiedArticles[]
-//        self.event = .loadMore
+        guard let targetIndex = originalArticles.firstIndex(where: { article in
+            article.id == modifiedArticles[index].id
+        }) else {
+            return
+        }
+        originalArticles[targetIndex].showMore = !originalArticles[targetIndex].showMore
     }
 }
 
@@ -121,11 +127,11 @@ struct ModifiedArticle {
     let description: String?
     let urlToImage: String?
     var showMore: Bool
+    let id: Int
 }
 
 enum Events {
     case loadMore
-//    case loadMoreWithSearchBar
     case refresh
     case cellUpdated(Int)
 }
