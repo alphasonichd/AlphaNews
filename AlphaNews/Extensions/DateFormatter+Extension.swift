@@ -14,10 +14,6 @@ extension ISO8601DateFormatter {
     }
 }
 
-//extension Formatter {
-//    static let iso8601withFractionalSeconds = ISO8601DateFormatter([.withInternetDateTime, .withFractionalSeconds])
-//}
-
 extension Formatter {
     static let iso8601withFractionalSeconds = ISO8601DateFormatter([.withInternetDateTime])
 }

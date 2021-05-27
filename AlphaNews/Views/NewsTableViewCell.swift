@@ -10,7 +10,6 @@ import Kingfisher
 
 class NewsTableViewCell: UITableViewCell {
     
-    
     @IBOutlet weak var newsImageView: UIImageView!
     @IBOutlet weak var newsTitleLabel: UILabel!
     @IBOutlet weak var newsContentLabel: UILabel!
@@ -43,22 +42,10 @@ class NewsTableViewCell: UITableViewCell {
                     .transition(.fade(1)),
                     .cacheOriginalImage
                 ])
-            {
-                result in
-                
-                switch result {
-                case .success(let value):
-                    print("Task done for: \(value.source.url?.absoluteString ?? "")")
-                case .failure(let error):
-                    print("Job failed: \(error.localizedDescription)")
-                }
-            }
         }
-        
         
         let readmoreFont = newsContentLabel.font
         let readmoreFontColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
-//        if newsContentLabel.text?.count ?? 0 > 1 {
         
         if showMore {
             imageViewBottomConstraint.priority = .defaultLow
@@ -74,5 +61,4 @@ class NewsTableViewCell: UITableViewCell {
             }
         }
     }
-    
 }
