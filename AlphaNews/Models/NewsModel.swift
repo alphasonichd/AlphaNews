@@ -11,7 +11,18 @@ protocol ModelDelegate: AnyObject {
     func modelDidUpdate()
 }
 
-final class NewsModel {
+protocol NewsModelProtocol {
+    func loadMore()
+    func reloadData()
+    func toggleShowMore(forArticleAt index: Int)
+    func filterArticles(with text: String?)
+    var modifiedArticles: [ModifiedArticle] { get }
+    var filtered: String? { get }
+    var event: Events { get }
+    var delegate: ModelDelegate? { get set }
+}
+
+final class NewsModel: NewsModelProtocol {
     
     private let networkService = NetworkService()
     
@@ -20,10 +31,11 @@ final class NewsModel {
     weak var delegate: ModelDelegate?
     var dayCount = 0
     
+    private(set) var originalArticles: [ModifiedArticle] = []
     
     private(set) var modifiedArticles: [ModifiedArticle] = [] {
         didSet {
-                delegate?.modelDidUpdate()
+            delegate?.modelDidUpdate()
         }
     }
     
@@ -46,7 +58,7 @@ final class NewsModel {
     
     var lastLoadedDay: Date = Date()
     
-    func setDatesAndLoadMore() {
+    func loadMore() {
         event = .loadMore
         guard let beginDate = beginDate, dayCount <= 6 else {
             return
@@ -55,18 +67,19 @@ final class NewsModel {
         dayCount += 1
         print(dayCount)
         print(endDate)
-        loadMore(from: stringBeginDate, to: stringEndDate)
+        fetchData(from: stringBeginDate, to: stringEndDate)
     }
     
     func reloadData() {
+        event = .refresh
         dayCount = 0
         endDate = Date()
         modifiedArticles = []
         filtered = nil
-        loadMore(from: stringBeginDate, to: stringEndDate)
+        fetchData(from: stringBeginDate, to: stringEndDate)
     }
     
-    func loadMore(from: String, to: String) {
+    func fetchData(from: String, to: String) {
         networkService.fetchNews(from: from, to: to) { result in
             switch result {
             case .failure(let error):
@@ -80,19 +93,26 @@ final class NewsModel {
                                                             showMore: false))
                 }
                 self.modifiedArticles.append(contentsOf: modifiedArticles)
+                self.originalArticles.append(contentsOf: modifiedArticles)
             }
         }
     }
     
-    func filterArticles(with text: String) {
-        modifiedArticles = modifiedArticles.filter {$0.title.contains(text)}
-        filtered = ""
+    func filterArticles(with text: String?) {
+        if let text = text {
+            modifiedArticles = originalArticles.filter {$0.title.contains(text)}
+        } else {
+            modifiedArticles = originalArticles
+        }
+        
+        filtered = text
     }
     
-    func toggleShowMore(forArticleAt index: Int, event: Events) {
-        self.event = event
+    func toggleShowMore(forArticleAt index: Int) {
+        self.event = .cellUpdated(index)
         modifiedArticles[index].showMore = !modifiedArticles[index].showMore
-        self.event = .loadMore
+//        let targetTitle = modifiedArticles[]
+//        self.event = .loadMore
     }
 }
 
@@ -105,6 +125,7 @@ struct ModifiedArticle {
 
 enum Events {
     case loadMore
+//    case loadMoreWithSearchBar
     case refresh
     case cellUpdated(Int)
 }

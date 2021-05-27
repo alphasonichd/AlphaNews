@@ -9,7 +9,7 @@ import Foundation
 
 final class NetworkService {
     
-    static let apiKey = "f41fc5f576a74322a0949f996119ede2"
+    static let apiKey = "7ff1842574b845a696fde752eb84359d"
     private let urlPath = "https://newsapi.org/v2/top-headlines?country=us"
     
     public func fetchNews(from: String, to: String, completion: @escaping (Result<NewsResponse, Error>) -> Void) {

@@ -8,17 +8,19 @@
 import UIKit
 import JGProgressHUD
 
+
+
 class NewsViewController: UIViewController {
     
-    private let newsModel = NewsModel()
+    private var newsModel: NewsModelProtocol = NewsModel()
     
     var refreshControl = UIRefreshControl()
     
     private let spinner = JGProgressHUD(style: .dark)
     
     private let tableView: UITableView = {
-       let tableView = UITableView()
-       return tableView
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        return tableView
     }()
     
     private let searchBar: UISearchBar = {
@@ -61,7 +63,7 @@ class NewsViewController: UIViewController {
     
     func setupTableView() {
         tableView.isHidden = true
-        tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
+//        tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         tableView.separatorInset = .zero
         tableView.register(cellClass: NewsTableViewCell.self)
         tableView.backgroundColor = #colorLiteral(red: 0.1811541617, green: 0.5091361403, blue: 0.6723850965, alpha: 1)
@@ -82,7 +84,6 @@ class NewsViewController: UIViewController {
     }
     
     @objc func refresh(_ sender: AnyObject) {
-        newsModel.event = .refresh
         newsModel.reloadData()
     }
 }
@@ -111,13 +112,33 @@ extension NewsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        newsModel.toggleShowMore(forArticleAt: indexPath.row, event: .cellUpdated(indexPath.row))
+        newsModel.toggleShowMore(forArticleAt: indexPath.row)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row + 1 == newsModel.modifiedArticles.count && newsModel.filtered == nil {
-            newsModel.setDatesAndLoadMore()
+            newsModel.loadMore()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let myView = UIView(frame: CGRect(x: 0,
+                                          y: 0,
+                                          width: tableView.frame.width,
+                                          height: 40))
+        let label = UILabel(frame: CGRect(x: 10,
+                                          y: 10,
+                                          width: tableView.frame.width,
+                                          height: 40))
+        label.font = UIFont(name: "Helvetica", size: 40.0)
+        label.text = "Most Recent"
+        label.textColor = #colorLiteral(red: 0.9781451821, green: 0.8748882413, blue: 0.8631244302, alpha: 1)
+        myView.addSubview(label)
+        return myView
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 65
     }
 }
 
@@ -127,10 +148,7 @@ extension NewsViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         newsModel.filterArticles(with: searchText)
         if searchText == "" {
-            newsModel.event = .loadMore
-            tableView.isHidden = true
-            spinner.show(in: tableView)
-            newsModel.reloadData()
+            newsModel.filterArticles(with: nil)
         }
     }
 }
@@ -143,6 +161,10 @@ extension NewsViewController: ModelDelegate {
         case .refresh:
             DispatchQueue.main.async {
                 self.tableView.reloadData()
+//                self.tableView.reloadData()
+                self.tableView.isHidden = false
+                self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
+                self.spinner.dismiss()
                 self.refreshControl.endRefreshing()
             }
         case .loadMore:
@@ -151,8 +173,17 @@ extension NewsViewController: ModelDelegate {
                 self.tableView.isHidden = false
                 self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
                 self.spinner.dismiss()
-                self.tableView.separatorStyle = .singleLine
+//                self.tableView.separatorStyle = .singleLine
             }
+//        case .loadMoreWithSearchBar:
+//            DispatchQueue.main.async {
+//                self.tableView.reloadData()
+//                self.tableView.isHidden = false
+//                self.tableView.separatorColor = #colorLiteral(red: 0.9781451821, green: 0.6626796946, blue: 0.8631244302, alpha: 1)
+//                self.searchBar.resignFirstResponder()
+//                self.spinner.dismiss()
+//                self.newsModel.event = .loadMore
+//            }
         case .cellUpdated(let index):
             tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
         }
