@@ -65,8 +65,6 @@ final class NewsModel: NewsModelProtocol {
         }
         endDate = beginDate
         dayCount += 1
-        print(dayCount)
-        print(endDate)
         fetchData(from: stringBeginDate, to: stringEndDate)
     }
     
